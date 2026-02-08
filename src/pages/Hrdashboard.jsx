@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Users, LogOut, CheckCircle, XCircle, Calendar } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Button = ({ children, variant = 'default', size = 'default', className = '', onClick, disabled, ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -87,7 +88,7 @@ export default function HRDashboard() {
       
       // Show error to user
       if (error.response?.status === 401 || error.response?.status === 403) {
-        alert('Session expired. Please login again.');
+        toast.error('Session expired. Please login again.');
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('id');
@@ -106,8 +107,7 @@ export default function HRDashboard() {
       await axios.delete(`http://localhost:8080/hr/delete/${employeeId}`);
       setEmployees(employees.filter(emp => emp.id !== employeeId));
     } catch (error) {
-      console.error('Error deleting employee:', error);
-      alert('Failed to delete employee');
+      toast.error('Failed to delete employee');
     }
   };
 
@@ -121,8 +121,7 @@ export default function HRDashboard() {
         emp.id === employeeId ? { ...emp, status: newStatus } : emp
       ));
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert(error.response?.data?.message || 'Failed to update employee status');
+      toast.error(error.response?.data?.message || 'Failed to update employee status');
     } finally {
       setUpdating(false);
     }
@@ -138,7 +137,7 @@ export default function HRDashboard() {
       setLeaves(leavesRes.data || []);
     } catch (error) {
       console.error('Error processing leave:', error);
-      alert(`Failed to ${action} leave request`);
+      toast.error(error.response?.data?.message || `Failed to ${action} leave request`);
     } finally {
       setUpdating(false);
     }
@@ -148,7 +147,7 @@ export default function HRDashboard() {
     e.preventDefault();
     
     if (!employeeForm.name || !employeeForm.email || !employeeForm.password || !employeeForm.department) {
-      alert('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
 
@@ -167,7 +166,7 @@ export default function HRDashboard() {
       setEmployeeForm({ name: '', email: '', password: '', department: '' });
       setShowEmployeeForm(false);
       await fetchData();
-      alert(response.data.message || 'Employee added successfully!');
+      toast.success('Employee added successfully!');
     } catch (error) {
       console.error('Error adding employee:', error);
       
@@ -184,14 +183,13 @@ export default function HRDashboard() {
           errorMessage = error.response.data.error;
         }
       } else if (error.request) {
-        // Request made but no response
         errorMessage = 'No response from server. Please check your connection.';
       } else {
         // Something else happened
         errorMessage = error.message || errorMessage;
       }
       
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -220,7 +218,7 @@ export default function HRDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-5">
+        <div className="max-w-7xl mx-auto px-6 py-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
@@ -234,7 +232,7 @@ export default function HRDashboard() {
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="flex items-center space-x-2"
+              className="flex cursor-pointer items-center space-x-2"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
@@ -289,7 +287,7 @@ export default function HRDashboard() {
         <div className="flex space-x-1 bg-white rounded-lg p-1 mb-6 border border-gray-200 w-fit">
           <button
             onClick={() => setActiveTab('employees')}
-            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
+            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all cursor-pointer ${
               activeTab === 'employees'
                 ? 'bg-black text-white'
                 : 'text-gray-600 hover:text-gray-900'
@@ -299,7 +297,7 @@ export default function HRDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('leaves')}
-            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
+            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all cursor-pointer ${
               activeTab === 'leaves'
                 ? 'bg-black text-white'
                 : 'text-gray-600 hover:text-gray-900'
@@ -312,15 +310,14 @@ export default function HRDashboard() {
         {/* Employees Table */}
         {activeTab === 'employees' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Employee Management</h2>
-                <p className="text-sm text-gray-500 mt-1">Manage employee details and status</p>
+                <h2 className="text-xl font-bold text-gray-900">Employees Table</h2>
               </div>
               <Button 
                 variant="default"
                 onClick={() => setShowEmployeeForm(true)}
-                className="flex items-center space-x-2"
+                className="flex items-center cursor-pointer space-x-2"
               >
                 <Users className="w-4 h-4" />
                 <span>Add Employee</span>
@@ -357,14 +354,7 @@ export default function HRDashboard() {
                         <span className="text-sm font-semibold text-gray-900">{employee.id}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <span className="text-xs font-semibold text-gray-600">
-                              {(employee.name || employee.email).charAt(0).toUpperCase()}
-                            </span>
-                          </div>
                           <span className="font-medium text-gray-900">{employee.name || 'N/A'}</span>
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {employee.email}
@@ -379,15 +369,16 @@ export default function HRDashboard() {
                           value={employee.status || 'AVAILABLE'}
                           onChange={(e) => handleStatusChange(employee.id, e.target.value)}
                           disabled={updating}
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
+                          className={`px-3 py-2 border border-gray-300 cursor-pointer rounded-lg text-sm font-medium border-none ${employee.status === 'AVAILABLE' ? ' text-green-600 ' : ' text-red-600 '}`}
                         >
-                          <option value="AVAILABLE">Available</option>
-                          <option value="NOT_AVAILABLE">Not Available</option>
+                          <option value="AVAILABLE" className='text-green-600 cursor-pointer'>Available</option>
+                          <option value="NOT_AVAILABLE" className='text-red-600 cursor-pointer'>Not Available</option>
                         </select>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6  py-4 whitespace-nowrap text-sm">
                         <Button 
                           variant="danger"
+                          className="cursor-pointer"
                           onClick={() => handleDeleteEmployee(employee.id)}
                         >
                           Delete
@@ -513,7 +504,7 @@ export default function HRDashboard() {
 
       {/* Employee Creation Modal */}
       {showEmployeeForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl">
@@ -526,7 +517,7 @@ export default function HRDashboard() {
                   setShowEmployeeForm(false);
                   setEmployeeForm({ name: '', email: '', password: '', department: '' });
                 }}
-                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center justify-center transition-colors"
                 disabled={submitting}
               >
                 <XCircle className="w-5 h-5 text-gray-500" />
@@ -578,7 +569,7 @@ export default function HRDashboard() {
                   placeholder="••••••••"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">Minimum 6 characters recommended</p>
+                <p className="text-xs text-gray-500 mt-1">Minimum 4 characters recommended</p>
               </div>
 
               {/* Department Field */}
@@ -616,7 +607,7 @@ export default function HRDashboard() {
                     setEmployeeForm({ name: '', email: '', password: '', department: '' });
                   }}
                   disabled={submitting}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                 >
                   Cancel
                 </Button>
@@ -624,7 +615,7 @@ export default function HRDashboard() {
                   type="submit"
                   variant="default"
                   disabled={submitting}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                 >
                   {submitting ? (
                     <>

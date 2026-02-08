@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { User, LogOut, Calendar, Plus, Clock, CheckCircle, XCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Button = ({ children, variant = 'default', size = 'default', className = '', onClick, disabled, type = 'button', ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -110,10 +111,9 @@ export default function EmployeeDashboard() {
       setLeaveForm({ fromDate: '', toDate: '', reason: '' });
       setShowLeaveForm(false);
       await fetchEmployeeData();
-      alert('Leave request submitted successfully!');
+      toast.success('Leave request submitted successfully!');
     } catch (error) {
-      console.error('Error submitting leave:', error);
-      alert('Failed to submit leave request. Please try again.');
+      toast.error('Failed to submit leave request. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -147,7 +147,7 @@ export default function EmployeeDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-5">
+        <div className="max-w-7xl mx-auto px-6 py-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
@@ -161,7 +161,7 @@ export default function EmployeeDashboard() {
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="flex items-center space-x-2"
+              className="flex cursor-pointer items-center space-x-2"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
@@ -170,10 +170,10 @@ export default function EmployeeDashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <Card className="px-6 py-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Requests</p>
@@ -185,7 +185,7 @@ export default function EmployeeDashboard() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Pending</p>
@@ -197,7 +197,7 @@ export default function EmployeeDashboard() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Approved</p>
@@ -214,17 +214,10 @@ export default function EmployeeDashboard() {
           {/* Employee Details */}
           <div className="lg:col-span-1">
             <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">My Details</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">My Details</h2>
               
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-3xl font-bold text-gray-600">
-                    {employee.Name}
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">{employee.Name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900">{employee.Name}</h3>
                 <p className="text-sm text-gray-500">{employee.Email}</p>
-              </div>
 
               <div className="space-y-4 border-t border-gray-200 pt-6">
                 <div>
@@ -243,7 +236,7 @@ export default function EmployeeDashboard() {
 
               <Button 
                 variant="default" 
-                className="w-full mt-6"
+                className="w-full mt-6 cursor-pointer"
                 onClick={() => setShowLeaveForm(!showLeaveForm)}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -270,7 +263,7 @@ export default function EmployeeDashboard() {
                         required
                         value={leaveForm.fromDate}
                         onChange={(e) => setLeaveForm({ ...leaveForm, fromDate: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent "
                       />
                     </div>
 
@@ -305,12 +298,12 @@ export default function EmployeeDashboard() {
                   <Button 
                     type="submit" 
                     variant="default" 
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     disabled={submitting}
                   >
                     {submitting ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                        <div className="w-4 h-4  border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
                         Submitting...
                       </>
                     ) : (
